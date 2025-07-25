@@ -71,16 +71,54 @@
 // }
 
 // 1. Імпортуємо функцію useState
-import { useState } from "react";
+// import { useState } from "react";
 
+// export default function App() {
+//   // 2. Оголошуємо стан clicks
+//   const [clicks, setClicks] = useState(0);
+
+//   const handleClick = () => {
+//     // 3. Використовуємо setClicks для зміни стану clicks
+//     setClicks(clicks + 1);
+//   };
+
+//   return <button onClick={handleClick}>Current: {clicks}</button>;
+// }
+
+// import OrderForm from "./OrderForm";
+// export default function App() {
+//   const handleOrder = (data: string) => {
+//     console.log("Order received from:", data);
+//   };
+//   return (
+//     <>
+//       <h1>Place your order</h1>
+//       <OrderForm onSubmit={handleOrder} />
+//     </>
+//   );
+// }
+import useState from "react";
+import axios from "axios";
+import SearchForm from "./SearchForm";
+import { type Article } from "../types/article";
+import ArticleList from "./ArticleList";
+
+interface ArticlesHttpResponse {
+  hits: Article[];
+}
 export default function App() {
-  // 2. Оголошуємо стан clicks
-  const [clicks, setClicks] = useState(0);
+  const [articles, setArticles] = useState<Article[]>([]);
 
-  const handleClick = () => {
-    // 3. Використовуємо setClicks для зміни стану clicks
-    setClicks(clicks + 1);
+  const handleSearch = async (topic: string) => {
+    const response = await axios.get<ArticlesHttpResponse>(
+      `https://hn.algolia.com/api/v1/search?query=${topic}`
+    );
+    setArticles(response.data.hits);
   };
-
-  return <button onClick={handleClick}>Current: {clicks}</button>;
+  return (
+    <div>
+      <SearchForm onSubmit={handleSearch} />
+      {articles.length > 0 && <ArticleList items={articles} />}
+    </div>
+  );
 }
